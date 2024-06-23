@@ -402,7 +402,7 @@ def noise_injection_training(X_train, images_train, Y_train, random_state):
         print(f'Key: {key} - Count: {len(classes[key])}')
         for i in classes[key]:
             Xi, imagei, Yi = i
-            print(f'X: {Xi} - Y: {Yi}')
+            #print(f'X: {Xi} - Y: {Yi}')
     
     max = 0
     for key in classes.keys():
@@ -410,10 +410,10 @@ def noise_injection_training(X_train, images_train, Y_train, random_state):
             max = len(classes[key])
 
     col_means = {col: np.mean(X_train[:, col]) for col in numerical_cols}
-    print(f'col_means: {col_means}')
+    #print(f'col_means: {col_means}')
 
     col_stds = {col: np.std(X_train[:, col]) for col in numerical_cols}
-    print(f'col_stds: {col_stds}')
+    #print(f'col_stds: {col_stds}')
 
     while not all(len(classes[key]) == max for key in classes.keys()):
         for key in classes.keys():
@@ -423,16 +423,16 @@ def noise_injection_training(X_train, images_train, Y_train, random_state):
                 # Add noise to numerical columns of X_key
                 for col in numerical_cols:
                     noise = np.random.normal(0, col_stds[col] * 0.05)
-                    print(f'Noise: {noise}')
+                    #print(f'Noise: {noise}')
                     X_key[col] += noise
                 
                 classes[key].append([X_key, image_key, Y_key])
 
     for key in classes.keys():
-        print(f'Key: {key} - Count: {len(classes[key])}')
+        #print(f'Key: {key} - Count: {len(classes[key])}')
         for i in classes[key]:
             Xi, imagei, Yi = i
-            print(f'X: {Xi} - Y: {Yi}')
+            #print(f'X: {Xi} - Y: {Yi}')
 
     combined = []
 
