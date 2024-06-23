@@ -1,0 +1,11 @@
+{
+    "modelname": "m0_b20_overs",
+    "modeltype": 0,
+    "n_epochs": 2000,
+    "overs": true,
+    "batch_size": 20,
+    "steps_per_epoch": 1,
+    "stopping": true,
+    "patience": 10,
+    "shuffle_state": 2963220438
+}
