@@ -1,10 +1,10 @@
 #!/bin/bash
 
 sftp fresca@coka.fe.infn.it << EOF
-cd OCT_EM_NN
+cd OCT_EM_NN2
 cd attention_maps
 lcd attention_maps
-get *
+# get *
 cd ../results
 lcd ../results
 get *
