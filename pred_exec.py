@@ -50,7 +50,7 @@ if __name__ == '__main__':
 
     #download_vgg16()
 
-    if modeltype in range(1, 5):
+    if modeltype in range(1, 6):
         n_epochs = train_pred(modelname, modeltype, n_epochs, overs, batch_size, steps_per_epoch, False, stopping, patience, random_state, shuffle_state)
         eval_general(modelname, False, random_state, shuffle_state, n_epochs)
         visualize_attention_general(modelname, False, random_state, shuffle_state)
