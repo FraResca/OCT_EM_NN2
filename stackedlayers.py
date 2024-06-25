@@ -5,7 +5,6 @@ import sys
 import random
 import json
 
-
 def custom_loss_imbalance(y_true, y_prvis):
     weight1, weight2 = class_weights
 
@@ -66,3 +65,5 @@ for i in ['A1', 'A1', 'A1', 'A1']:
 concat_model = unify_nets(models)
 concat_model.summary()
 concat_model.save('saved_models/concat_model.keras')
+
+eval_general('concat_model', True, r1, shuffle_state, 0)

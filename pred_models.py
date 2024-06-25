@@ -5,6 +5,8 @@ from tensorflow.keras.layers import Input, Multiply, BatchNormalization, Conv2D,
 from tensorflow.keras.regularizers import l1
 from keras.layers import Input, Dense, Flatten, Concatenate, Dropout, Conv2D
 from tensorflow.keras.losses import BinaryCrossentropy, MeanSquaredError
+import numpy as np
+import keras.backend as K
 
 def custom_loss_imbalance_visus(y_true, y_prvis):
     global class_weights
@@ -559,24 +561,32 @@ def net_vis(modelname, modeltype):
     
     return vis_model
 
+def reduce_output(x):
+    grouped = K.reshape(x, (-1, 524, 4))  # Reshape to group every 4 values
+    reduced = K.mean(grouped, axis=-1)  # Take the mean of each group
+    return reduced
+
 def unify_convs(layers, i):
-    if i==0:
+    # Adjust the input shape based on the iteration index
+    if i == 0:
         input_shape = layers[0].input_shape[1:]
     else:
-        input_shape = layers[0].input_shape[1:-1] + (layers[0].input_shape[-1]*4,)
+        # After the first iteration, the number of channels is quadrupled
+        input_shape = list(layers[0].input_shape[1:])
+        input_shape[-1] *= 4  # Assuming the channels are the last dimension
+
     input_layer = Input(shape=input_shape)
-    print(input_layer.shape)
-
-
     
     conv_layers = []
     for layer in layers:
+        # Create a new Conv2D layer with the same configuration as the original layer
         new_conv = Conv2D(layer.filters, layer.kernel_size, activation=layer.activation, padding=layer.padding)(input_layer)
         conv_layers.append(new_conv)
 
+    # Concatenate the outputs of the newly created Conv2D layers
     output = Concatenate(axis=-1)(conv_layers)
+    
     return Model(inputs=input_layer, outputs=output)
-
 
 def unify_nets(models):
     input_cln = Input(shape=(14,), name='input_cln')
@@ -591,8 +601,7 @@ def unify_nets(models):
         layer.trainable = False
 
     vgg16_output = vgg16_model(input_img)
-
-    prevgg16_output = vgg16_output
+    prevgg16_output = Concatenate(axis=-1)([vgg16_output, vgg16_output, vgg16_output, vgg16_output])
 
     conv = BatchNormalization(name='batch_norm')(vgg16_output)
 
@@ -600,7 +609,8 @@ def unify_nets(models):
         layers = []
         for j in range(len(models)):
             layers.append(models[j].get_layer(f'conv_img_{i+1}'))
-            conv = unify_convs(layers, i)(conv)
+        conv = unify_convs(layers, i)(conv)
+        #conv = create_combined_conv_layer(layers)(conv)
 
     postcnn = conv
     
@@ -611,18 +621,21 @@ def unify_nets(models):
     
     conv = Lambda(lambda tensors: tensors[0] / (tensors[1] + 1e-7), name='divide')([conv, y])
     convput = Flatten(name='flatten')(conv)
+    convput_reduced = Lambda(lambda x: K.mean(K.reshape(x, (-1, 512, 4)), axis=-1), name='reduce_to_512')(convput)
 
-    concat = Concatenate(name='concat')([convput, denseput])
+    concat = Concatenate(name='concat')([convput_reduced, denseput])
+    
     dropout = Dropout(0.5, name='dropout')(concat)
-    dense_fin = Dense(1024, activation='relu', name='dense_fin', activity_regularizer=l1(0.001))(dropout)
-    hid = Dense(512, activation='relu', name='hid')(dense_fin)
+    dense_fin = models[0].get_layer('dense_fin')(dropout)
+    hid = models[0].get_layer('hid')(dense_fin)
 
-    edema_output = Dense(1, activation='sigmoid', name='edema_output')(hid)
-    ellip_output = Dense(1, activation='sigmoid', name='ellip_output')(hid)
-    cst_output = Dense(1, activation='sigmoid', name='cst_output')(hid)
-    ct_output = Dense(1, activation='sigmoid', name='ct_output')(hid)
+    edema_output = models[0].get_layer('edema_output')(hid)
+    ellip_output = models[0].get_layer('ellip_output')(hid)
+    cst_output = models[0].get_layer('cst_output')(hid)
+    ct_output = models[0].get_layer('ct_output')(hid)
+    vis_output = models[0].get_layer('vis_output')(hid)
 
-    output = Concatenate(name='output')([edema_output, ellip_output, cst_output, ct_output])
+    output = Concatenate(name='output')([edema_output, ellip_output, cst_output, ct_output, vis_output])
     model = Model(inputs=[input_img, input_cln], outputs=output, name='net_1_model')
 
     return model
