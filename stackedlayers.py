@@ -35,35 +35,18 @@ def custom_loss_imbalance_visus(y_true, y_prvis):
 
     return binary_loss + mse_loss
 
-
-
 r1 = random.randint(0, 100000)
-r2 = random.randint(0, 100000)
-r3 = random.randint(0, 100000)
-r4 = random.randint(0, 100000)
 
-shuffle_state = random.randint(0, 100000)
-'''
-train_pred('A1', 1, 2000, True, 10, 1, False, True, 15, r1, shuffle_state)
-train_pred('A1', 1, 2000, True, 10, 1, True, True, 15, r1, shuffle_state)
-
-train_pred('A2', 1, 2000, True, 10, 1, False, True, 15, r2, shuffle_state)
-train_pred('A2', 1, 2000, True, 10, 1, True, True, 15, r2, shuffle_state)
-
-train_pred('A3', 1, 2000, True, 10, 1, False, True, 15, r3, shuffle_state)
-train_pred('A3', 1, 2000, True, 10, 1, True, True, 15, r3, shuffle_state)
-
-train_pred('A4', 1, 2000, True, 10, 1, False, True, 15, r4, shuffle_state)
-train_pred('A4', 1, 2000, True, 10, 1, True, True, 15, r4, shuffle_state)
-'''
+shuffle_state = 2963220438
+''
 
 models = []
-for i in ['A1', 'A1', 'A1', 'A1']:
+for i in ['A1', 'A2', 'A3', 'A4']:
     model = load_model(f'saved_models/{i}_visus.keras', custom_objects={'custom_loss_imbalance_visus': custom_loss_imbalance_visus}, safe_mode=False)
     models.append(model)
 
 concat_model = unify_nets(models)
 concat_model.summary()
-concat_model.save('saved_models/concat_model.keras')
+concat_model.save('saved_models/concat_model_visus.keras')
 
 eval_general('concat_model', True, r1, shuffle_state, 0)

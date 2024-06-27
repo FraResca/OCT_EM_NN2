@@ -399,7 +399,6 @@ def noise_injection_training(X_train, images_train, Y_train, random_state):
         classes[key].append([X_train[i], images_train[i], Y_train[i]])
     
     for key in classes.keys():
-        print(f'Key: {key} - Count: {len(classes[key])}')
         for i in classes[key]:
             Xi, imagei, Yi = i
             #print(f'X: {Xi} - Y: {Yi}')

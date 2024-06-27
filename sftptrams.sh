@@ -10,6 +10,6 @@ lcd ../results
 get *
 cd ../saved_models
 lcd ../saved_models
-# get *
+get *
 exit
 EOF
