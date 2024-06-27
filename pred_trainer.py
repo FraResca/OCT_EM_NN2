@@ -57,7 +57,7 @@ def download_vgg16():
 def train_data_generator(X, images, Y, batch_size, oversample, random_state, shuffle_state):
     
     X_train, _, images_train, _, Y_train, _ = splits(X, images, Y, shuffle_state)
-    # X_train, images_train, Y_train = noise_injection_training(X_train, images_train, Y_train, random_state)
+    X_train, images_train, Y_train = noise_injection_training(X_train, images_train, Y_train, random_state)
     
     if oversample == True:
         X_train, images_train, Y_train = oversample_training(X_train, images_train, Y_train, random_state)
