@@ -45,9 +45,10 @@ if __name__ == '__main__':
         shuffle_state = params['shuffle_state']
     else:
         shuffle_state = random.randint(0, 2**32 - 1)   
+    
+    shuffle_state = 3266666039
     print(f'Shuffle state: {shuffle_state}\n')
-
-
+    
     #download_vgg16()
 
     if modeltype in range(1, 6):
